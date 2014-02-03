@@ -19,6 +19,8 @@
 
 function init() {
 
+	var workingDiv = document.getElementById("working");
+
     // instantiate threejs scene graph
     scene = new THREE.Scene();
 
@@ -52,10 +54,11 @@ function init() {
     renderer.setSize( window.innerWidth, window.innerHeight );
 
     // attach threejs renderer to DOM
-    document.body.appendChild( renderer.domElement );
+    workingDiv.appendChild( renderer.domElement );
 
     // instantiate threejs camera controls
-    camera_controls = new THREE.OrbitControls( camera );
+    //CHANGES: Note that workingDiv is provided as a second argument to limit controls only to the width of workingDiv.
+    camera_controls = new THREE.OrbitControls( camera, workingDiv );
     camera_controls.addEventListener( 'change', renderer );
 
     // instantiate threejs keyboard controls, for continuous interactive controls
@@ -220,7 +223,7 @@ function animate() {
     //}
 
     // call user's animation loop
-    my_animate();
+    keypressDetect();
 
     // make sure camera controls (THREE OrbitControls) are looking at the robot base
     camera_controls.target.x = robot.links[robot.base].geom.position.x;
