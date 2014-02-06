@@ -52,47 +52,7 @@
 	<script src="3jsbot_threejs.js"></script> 
 	<script src="3jsbot_userinput.js"></script>
 	<script src="leap/leap.js" charset="utf-8">	</script>
-	<script>
-	
-		function vectorToString(vector){
-			
-			var vectorString = "";
-			
-			for(var i = 0; i<vector.length; i++){
-				vectorString = vectorString+vector[i]+" ";
-			}
-			
-			return vectorString;
-		}
-		
-		var nullCoord = [.5,.5,.5];
-		var palmCoord = undefined;
-		
-		function getCoord(){
-			var returnVector;
-			//If palmCoord has been set from the Leap loop, return its value, otherwise return null values of 0s.
-			if (palmCoord!==undefined){
-				returnVector=palmCoord;
-			}else{
-				returnVector=nullCoord;
-			}
-			return returnVector;
-		}
-	
-		var controllerOptions = {enableGestures : true};
-		Leap.loop(controllerOptions, function(frame){
-		
-			var interactionBox = frame.interactionBox;
-		
-			if(frame.hands.length > 0){
-				var hand = frame.hands[0];
-				
-				palmCoord = interactionBox.normalizePoint(hand.palmPosition, true);
-			}else{
-				palmCoord = nullCoord;
-			}	
-		});
-	</script>
+	<script src="leap_control.js"></script>
 	<link rel="stylesheet" href="style.css" title="3jsbot CSS" type="text/css" media="screen" charset="utf-8">
 		
 </head>
@@ -101,8 +61,21 @@
 <body>
 <div id="wrapper">
 	<div id="header">
-		<h1>3jsBot</h1>
-		<h2>z: jitter, x: up, c: down</h2>
+		<div id="title">
+			<h1>3jsBot</h1>
+			<h2>z: jitter, x: up, c: down</h2>
+		</div>
+		<div id="leap_panel">
+			<div id="leap_activate">
+				<div id="leap_toggle" onclick="toggle(function(){my_animate();}, 'm', 'leap','leap_toggle_inner',['#6fa5ff','grey']);">
+					<div id="leap_toggle_inner">
+					</div>
+				</div>
+				<div id="button_text">
+					<p>Leap Motion Tracking</p>
+				</div>
+			</div>
+		</div>
 	</div>
 	<div id="main">
 	<div id="working">
@@ -261,20 +234,28 @@
 	
 	//Take as an argument the my_animate() function as a callback. This prevents the main loop from looping around on the user while they're pressing the key and thus triggering flip-flopping of states.
 	//Toggle the state of the jitter var to the opposite of its current value after a timeout of 100 ms. If after the 100ms timeout, the state of the keypress has reversed, indicating a key-press, then flip states. Otherwise, loop again.
-	function toggle(my_animate, key, flag) {
+	function toggle(my_animate, key, flag, divID, style) {
 		//Check if the flag is currently on, and toggle it appropriately.
 		if (window[flag] === 1){
 			setTimeout(function(){
 				if(!keyboard.pressed(key)){
 					textbar.innerHTML = flag+" was turned off.";  // stop jittering the pieces
 					window[flag] = 0;
+					if(divID!==undefined){
+						var divToStyle = document.getElementById(divID);
+						divToStyle.style.backgroundColor=style[1];
+					}
 				}
 			}, 100);
 		}else{
 			setTimeout(function(){
 				if(!keyboard.pressed(key)){
 					textbar.innerHTML = flag+" was turned on."; // start jittering the pieces
-					window[flag] = 1;	
+					window[flag] = 1;
+					if(divID!==undefined){
+						var divToStyle = document.getElementById(divID);
+						divToStyle.style.backgroundColor=style[0];
+					}	
 				}
 			}, 100);	
 		}
@@ -377,51 +358,48 @@
 		    }
 		}
 		
-		function mapCoords(inpVector){
-			var outVector = inpVector;
-			for(x in outVector){
-				outVector[x] = ((inpVector[x]*2)-1);
-			}
-			return outVector;
-		}
-		
+
 		//If the leap flag has been toggled on
 		if(leap===1){
 			// Object.key(object) is a rough way to get number of keys in an object
+			//Here we define a center variable that indicates how far from the origin the first piece should be position so that all pieces are centered across the origin
 			var center = -Object.keys(robot.joints).length*spacing/2;  
 			//Get the coordinates from the Leap
 			var coords = getCoord();
 			
-			
+			//Update the moveAmt variables which correspond to the summed offset for each axis. We scale map the normalized Leap controls from [0,1] to [-1,1] and then scale them down by 50
 			XmoveAmt += ((coords[0]*2)-1)/50;
 			YmoveAmt += ((coords[1]*2)-1)/50;
 			ZmoveAmt += ((coords[2]*2)-1)/50;
 			
+			//Set a variable for individual spacing of each part
 			var indivSpace = 0;
+			//Loop through all joints in the robot
 			for (x in robot.joints){
+				//Set each of the xyz coordinates to the total offset summed thus far
 				jsmat[1][3] = 2+YmoveAmt;
 				jsmat[2][3] = ZmoveAmt;
 				jsmat[0][3] = center+XmoveAmt+indivSpace;
 				
-				
-				
+				//Transform the matrix and then apply it to the appropriate joint				
 				threemat = matrix_2Darray_to_threejs(jsmat); 
 				simpleApplyMatrix(robot.joints[x].geom, threemat);
-				
+				//Increment the indivSpace variable by the desired spacing amount
 				indivSpace += spacing;
 			}
 			
+			//Reset the indivSpace variable to 0
 			indivSpace = 0;
-			jsmat[0][3]=0;
-			 // iterate over each link of the robot independently
+			// iterate over each link of the robot independently
 		    for (x in robot.links) {
+		    	//Apply the appropriate offset
 		        jsmat[1][3] = 1+YmoveAmt;
 		        jsmat[2][3] = ZmoveAmt;
 		        jsmat[0][3] = center+XmoveAmt+indivSpace;
-		        
+		        //Apply the updated matrix
 		        threemat = matrix_2Darray_to_threejs(jsmat);
 		        simpleApplyMatrix(robot.links[x].geom,threemat);
-		        
+		        //Increment indivSpace for the next block
 		        indivSpace += spacing;
 		    }
 			

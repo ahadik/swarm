@@ -70,6 +70,49 @@ h2{
 	height: 10%;
 }
 
+#title{
+	position: relative;
+	width: intrinsic;
+	float: left;
+}
+
+#leap_panel{
+	position: relative;
+	float: left;
+	padding-top: 25px;
+	padding-left: 25px;
+}
+
+#leap_toggle{
+	position: relative;
+	display:block;
+	width: 25px;
+	height: 25px;
+	background-color: white;
+	border-radius: 50%;
+	padding: 3px;
+	border: 1px solid #aaaaaa;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#leap_toggle_inner{
+	display: block;
+	width: 25px;
+	height: 25px;
+	background-color: grey;
+	border-radius: 50%;
+	cursor: pointer;
+}
+
+#button_text{
+	position: relative;
+	margin-left: auto;
+	margin-right: auto;
+	padding-top: 6px;
+	font-family: sans-serif;
+}
+
 #working{
 	position: relative;
 	float: left;
