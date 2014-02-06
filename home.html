@@ -51,6 +51,48 @@
 	-->
 	<script src="3jsbot_threejs.js"></script> 
 	<script src="3jsbot_userinput.js"></script>
+	<script src="leap/leap.js" charset="utf-8">	</script>
+	<script>
+	
+		function vectorToString(vector){
+			
+			var vectorString = "";
+			
+			for(var i = 0; i<vector.length; i++){
+				vectorString = vectorString+vector[i]+" ";
+			}
+			
+			return vectorString;
+		}
+		
+		var nullCoord = [.5,.5,.5];
+		var palmCoord = undefined;
+		
+		function getCoord(){
+			var returnVector;
+			//If palmCoord has been set from the Leap loop, return its value, otherwise return null values of 0s.
+			if (palmCoord!==undefined){
+				returnVector=palmCoord;
+			}else{
+				returnVector=nullCoord;
+			}
+			return returnVector;
+		}
+	
+		var controllerOptions = {enableGestures : true};
+		Leap.loop(controllerOptions, function(frame){
+		
+			var interactionBox = frame.interactionBox;
+		
+			if(frame.hands.length > 0){
+				var hand = frame.hands[0];
+				
+				palmCoord = interactionBox.normalizePoint(hand.palmPosition, true);
+			}else{
+				palmCoord = nullCoord;
+			}	
+		});
+	</script>
 	<link rel="stylesheet" href="style.css" title="3jsbot CSS" type="text/css" media="screen" charset="utf-8">
 		
 </head>
@@ -115,7 +157,10 @@
 		//Define a global flags for whether or not jitter is turned on, the direction of movement, and the net sum of movement registered thus far.
 	    jitter = 1;
 	    move = 0;
-	    moveAmt=0;
+	    leap=0;
+	    YmoveAmt=0;
+	    XmoveAmt=0;
+	    ZmoveAmt=0;
 
 	    textbar = document.createElement('div');
 		textbar.id="textbar";
@@ -204,7 +249,11 @@
 	    	//If z is pressed on the keyboard pass my_animate as a callback along to the toggle_jitter() function to toggle the jitter flag
 	        toggle(function(){
 		        my_animate();
-	        }, "z");	    
+	        }, "z", 'jitter');	    
+	    }else if(keyboard.pressed("m")){
+	    	toggle(function(){
+		    	my_animate();
+	    	}, "m", 'leap');
 	    }else{
 		    my_animate();
 	    }
@@ -212,19 +261,20 @@
 	
 	//Take as an argument the my_animate() function as a callback. This prevents the main loop from looping around on the user while they're pressing the key and thus triggering flip-flopping of states.
 	//Toggle the state of the jitter var to the opposite of its current value after a timeout of 100 ms. If after the 100ms timeout, the state of the keypress has reversed, indicating a key-press, then flip states. Otherwise, loop again.
-	function toggle(my_animate, key) {
-		if (jitter === 1){
+	function toggle(my_animate, key, flag) {
+		//Check if the flag is currently on, and toggle it appropriately.
+		if (window[flag] === 1){
 			setTimeout(function(){
 				if(!keyboard.pressed(key)){
-					textbar.innerHTML = "Jittering was turned off.";  // stop jittering the pieces
-					jitter = 0;
+					textbar.innerHTML = flag+" was turned off.";  // stop jittering the pieces
+					window[flag] = 0;
 				}
 			}, 100);
 		}else{
 			setTimeout(function(){
 				if(!keyboard.pressed(key)){
-					textbar.innerHTML = "Jittering was turned on."; // start jittering the pieces
-					jitter = 1;	
+					textbar.innerHTML = flag+" was turned on."; // start jittering the pieces
+					window[flag] = 1;	
 				}
 			}, 100);	
 		}
@@ -258,28 +308,30 @@
 	    var spacing = 0.9;  // variables declared with "var" are local 
 	
 	    // jsmat[0][3] corresponds to the x-coordinate of the position for the 3D object
-	    // Object.key(object) is a rough way to get number of keys in an object
-	    jsmat[0][3] = -Object.keys(robot.joints).length*spacing/2;  
+	    
 		
 		//Check if the move flag has been set. Set the move increment as appropriate
 		if(move===1){
-		   	moveAmt+=.1;
+		   	YmoveAmt+=.1;
 	    }else if(move===-1){
-		   	moveAmt+=-.1;
+		   	YmoveAmt+=-.1;
 	    }else{
-		   	moveAmt+=0;
+		   	YmoveAmt+=0;
 	    }
+	    
 	    
 	    //If the jitter flag is set to 1, transform the positions by a random offset and the move offset, if any.
 		if(jitter===1){
+			// Object.key(object) is a rough way to get number of keys in an object
+			jsmat[0][3] = -Object.keys(robot.joints).length*spacing/2;  
 		    // iterate over each joint of the robot independently
 		    for (x in robot.joints) {
 		
 		        // jsmat[1][3] corresponds to the y-coordinate of the position for the 3D object
-		        jsmat[1][3] = 2+moveAmt+Math.random()*0.02;  // Math object has lots of helpful functions
+		        jsmat[1][3] = 2+YmoveAmt+Math.random()*0.02;  // Math object has lots of helpful functions
 		
 		        // jsmat[2][3] corresponds to the z-coordinate of the position for the 3D object
-		        jsmat[2][3] = Math.random()*0.02;
+		        jsmat[2][3] = ZmoveAmt+Math.random()*0.02;
 		
 		        // convert 2D JavaScript array to the threejs format
 		        threemat = matrix_2Darray_to_threejs(jsmat); 
@@ -288,21 +340,23 @@
 		        simpleApplyMatrix(robot.joints[x].geom,threemat);
 		
 		        jsmat[0][3] += spacing;
+		        
 		    } 
 		
 		    // iterate over each link of the robot independently
 		    jsmat[0][3] = -Object.keys(robot.joints).length*spacing/2;
 		    for (x in robot.links) {
-		        jsmat[1][3] = 1+moveAmt+Math.random()*0.02;
+		        jsmat[1][3] = 1+YmoveAmt+Math.random()*0.02;
 		        jsmat[2][3] = Math.random()*0.02;
 		        threemat = matrix_2Darray_to_threejs(jsmat);
 		        simpleApplyMatrix(robot.links[x].geom,threemat);
 		        jsmat[0][3] += spacing;
 		    }
 		//If the jitter flag isn't set, transform the positions only by the offset.
-	    }else{		
-	    	//moveAmt is a variable defining the net sum of up and down positions thus far. We transform the joints by 2 plus this value
-			jsmat[1][3] += 2+moveAmt;
+	    }else{
+	    	jsmat[0][3] = -Object.keys(robot.joints).length*spacing/2;
+	    	//YmoveAmt is a variable defining the net sum of up and down positions thus far. We transform the joints by 2 plus this value
+			jsmat[1][3] += 2+YmoveAmt;
 		    for(x in robot.joints){
 				
 		        // convert 2D JavaScript array to the threejs format
@@ -314,13 +368,63 @@
 		        jsmat[0][3] += spacing;
 		    }
 		    //We transform the links by a value of 1 plus the net sum of vertical movement.
-			jsmat[1][3] = 1+moveAmt;
+			jsmat[1][3] = 1+YmoveAmt;
 		    jsmat[0][3] = -Object.keys(robot.joints).length*spacing/2;
 		    for (x in robot.links) {
 		        threemat = matrix_2Darray_to_threejs(jsmat);
 		        simpleApplyMatrix(robot.links[x].geom,threemat);
 		        jsmat[0][3] += spacing;
 		    }
+		}
+		
+		function mapCoords(inpVector){
+			var outVector = inpVector;
+			for(x in outVector){
+				outVector[x] = ((inpVector[x]*2)-1);
+			}
+			return outVector;
+		}
+		
+		//If the leap flag has been toggled on
+		if(leap===1){
+			// Object.key(object) is a rough way to get number of keys in an object
+			var center = -Object.keys(robot.joints).length*spacing/2;  
+			//Get the coordinates from the Leap
+			var coords = getCoord();
+			
+			
+			XmoveAmt += ((coords[0]*2)-1)/50;
+			YmoveAmt += ((coords[1]*2)-1)/50;
+			ZmoveAmt += ((coords[2]*2)-1)/50;
+			
+			var indivSpace = 0;
+			for (x in robot.joints){
+				jsmat[1][3] = 2+YmoveAmt;
+				jsmat[2][3] = ZmoveAmt;
+				jsmat[0][3] = center+XmoveAmt+indivSpace;
+				
+				
+				
+				threemat = matrix_2Darray_to_threejs(jsmat); 
+				simpleApplyMatrix(robot.joints[x].geom, threemat);
+				
+				indivSpace += spacing;
+			}
+			
+			indivSpace = 0;
+			jsmat[0][3]=0;
+			 // iterate over each link of the robot independently
+		    for (x in robot.links) {
+		        jsmat[1][3] = 1+YmoveAmt;
+		        jsmat[2][3] = ZmoveAmt;
+		        jsmat[0][3] = center+XmoveAmt+indivSpace;
+		        
+		        threemat = matrix_2Darray_to_threejs(jsmat);
+		        simpleApplyMatrix(robot.links[x].geom,threemat);
+		        
+		        indivSpace += spacing;
+		    }
+			
 		}
 
 	    
