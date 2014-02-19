@@ -114,15 +114,16 @@ function init() {
     // reminder of init_robot() ...
 
     // CS148: uncomment after implementing joints in kinematic hierarchy 
-    /*
+    
     // initialize the active link/joint for control
     active_link = robot.base;
     active_joint = robot.links[active_link].children[0];
     //robot.links[active_link].geom.material.wireframe = false; 
-    //robot.links[active_link].geom.material.opacity = 0.5; 
-    robot.joints[active_joint].display_geom.material.wireframe = false; 
-    robot.joints[active_joint].display_geom.material.opacity = 0.5; 
-    */
+    //robot.links[active_link].geom.material.opacity = 0.5;
+    console.log(active_joint);
+    robot.joints[active_joint].geom.material.wireframe = false; 
+    robot.joints[active_joint].geom.material.opacity = 0.5; 
+   
 
     // !!! change this to scale geometries or scale view
     // scaling geometries for view

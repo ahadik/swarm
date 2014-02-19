@@ -30,11 +30,12 @@ robot.links = {
     //"forearm_left": {}
 	};
 	
-	robot.links.clavicle_right = {parent: "clavicle_right_yaw"};
-	robot.links.clavicle_left = {parent: "clavicle_left_roll"};
-	robot.links.shoulder_right = {parent: "shoulder_right_yaw"};
-	robot.links.upperarm_right = {parent: "upperarm_right_pitch"};
-	robot.links.forearm_right = {parent: "forearm_right_yaw"};
+	robot.links.base = {children: ["clavicle_right_yaw", "clavicle_left_roll"]};
+	robot.links.clavicle_right = {parent: "clavicle_right_yaw", children: ["shoulder_right_yaw"]};
+	robot.links.clavicle_left = {parent: "clavicle_left_roll", children: []};
+	robot.links.shoulder_right = {parent: "shoulder_right_yaw", children: ["upperarm_right_pitch"]};
+	robot.links.upperarm_right = {parent: "upperarm_right_pitch", children: ["forearm_right_yaw"]};
+	robot.links.forearm_right = {parent: "forearm_right_yaw", children: []};
 
 
 //////////////////////////////////////////////////
