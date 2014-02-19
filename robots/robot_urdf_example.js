@@ -44,11 +44,11 @@ robot.joints.joint1.origin = {xyz: [0.5,0.3,0], rpy:[0,0,0]};
 robot.joints.joint1.axis = [-1.0,0.0,0];  // simpler axis 
 
 robot.joints.joint2 = {parent:"link1", child:"link3"};
-robot.joints.joint2.origin = {xyz: [-0.2,0.5,0], rpy:[0,0,1.57]};
+robot.joints.joint2.origin = {xyz: [-0.2,0.5,0], rpy:[0,0,-1.57]};
 robot.joints.joint2.axis = [-0.707,0.707,0];
 
 robot.joints.joint3 = {parent:"link3", child:"link4"};
-robot.joints.joint3.origin = {xyz: [0.5,0,0], rpy:[0,0,-1.57]};
+robot.joints.joint3.origin = {xyz: [0.5,0,0], rpy:[0,0,1.57]};
 robot.joints.joint3.axis = [0.707,-0.707,0];
 
 //////////////////////////////////////////////////
