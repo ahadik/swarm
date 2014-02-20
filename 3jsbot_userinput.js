@@ -102,16 +102,21 @@ function user_input() {
 
 function change_active_link_down() {
     if (typeof robot.links[robot.joints[active_joint].child].children !== 'undefined') {
+    	console.log(robot.links[robot.joints[active_joint].child]);
+    	console.log(active_joint);
+    	console.log(active_link);
         robot.joints[active_joint].display_geom.material.opacity = 1.0; 
 
         active_link = robot.joints[active_joint].child;
         active_joint = robot.links[active_link].children[0];
-
+		console.log(active_joint);
+		console.log(active_link);
         robot.joints[active_joint].display_geom.material.opacity = 0.5; 
     }
 }
 
 function change_active_link_up() {
+console.log(active_joint);
     if (active_link !== robot.base) {
         robot.joints[active_joint].display_geom.material.opacity = 1.0; 
 
@@ -123,6 +128,7 @@ function change_active_link_up() {
 }
 
 function change_active_joint_next() {
+console.log(active_joint);
     robot.joints[active_joint].display_geom.material.opacity = 1.0; 
 
     active_joint = robot.links[active_link].children[(robot.links[active_link].children.indexOf(active_joint)+1) % robot.links[active_link].children.length];
