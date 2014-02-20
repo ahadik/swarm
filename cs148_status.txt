@@ -1,7 +1,13 @@
-30: Alexander Hadik 
+29: Tyler Del Sesto 
  
  Assignment 1: CHECK 
- nice redesign of the interface github will translate 'Assignment 1' into 'Assignment-1'. Please use 'Assignment-X' for branching of Assignment X
+ code works properly, but need to create branches for individual assignments for completion checks
+ a check can be granted once proper branch is in place 
+ nice redesign of output messaging; jitter toggle worked nicely 
+ github will translate 'Assignment 1' into 'Assignment-1'. Please use 'Assignment-X' for branching of Assignment X
  branch lables are case sensitive
- 
+ comment: branch now found properly 
+ Assignment 2: UNCHECKED
+ error: incorrect output on all test cases
+ comment: the output transforms look to be incorrect, through the kinematics seem to be traversed 
 
