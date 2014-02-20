@@ -1,13 +1,16 @@
-29: Tyler Del Sesto 
+30: Alexander Hadik 
  
  Assignment 1: CHECK 
- code works properly, but need to create branches for individual assignments for completion checks
- a check can be granted once proper branch is in place 
- nice redesign of output messaging; jitter toggle worked nicely 
+ nice redesign of the interface 
  github will translate 'Assignment 1' into 'Assignment-1'. Please use 'Assignment-X' for branching of Assignment X
  branch lables are case sensitive
- comment: branch now found properly 
+ 
  Assignment 2: UNCHECKED
- error: incorrect output on all test cases
- comment: the output transforms look to be incorrect, through the kinematics seem to be traversed 
+ comment: br2 example works properly, but other test cases show empty environment 
+ >> TypeError: robot.links[active_link].children is undefined 3jsbot.js:120 
+ >> Firefox can't establish a connection to the server at ws://127.0.0.1:6437/v4.json. 
+ warning: joint selection key commands not handling tree extents
+ comment: leap motion integration is seriously cool. would love to see this sometime.
+ comment: the use of global transform for robot up/down was interesting to see 
+ 
 
