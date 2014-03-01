@@ -34,6 +34,7 @@ function set_robot_parts(){
 
         //Instantiate a rotation matrix for the joint
         var rotateMatrix = make_rotation_matrix(robot.joints[x].origin.rpy[0],robot.joints[x].origin.rpy[1],robot.joints[x].origin.rpy[2]);
+//        console.log(rotateMatrix);
         //Instantiate a transformation matrix for the joint
         var translationMatrix = [
         	[1,0,0,tx],

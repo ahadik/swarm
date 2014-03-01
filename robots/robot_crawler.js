@@ -72,11 +72,11 @@ robot.joints.leg1_hip.origin = {xyz: [0.3,0.0,0.9], rpy:[0,Math.PI/2,0]};
 robot.joints.leg1_hip.axis = [0.0,1.0,0.0]; 
 
 robot.joints.leg1_knee = {parent:"leg1_upper", child:"leg1_middle"};
-robot.joints.leg1_knee.origin = {xyz: [0.0,0.0,0.4], rpy:[Math.PI/4,0,0]};
+robot.joints.leg1_knee.origin = {xyz: [0.0,0.0,0.4], rpy:[-Math.PI/4,0,0]};
 robot.joints.leg1_knee.axis = [1.0,0.0,0.0]; 
 
 robot.joints.leg1_ankle = {parent:"leg1_middle", child:"leg1_lower"};
-robot.joints.leg1_ankle.origin = {xyz: [0.0,0.0,0.6], rpy:[-Math.PI/2,0,0]};
+robot.joints.leg1_ankle.origin = {xyz: [0.0,0.0,0.6], rpy:[Math.PI/2,0,0]};
 robot.joints.leg1_ankle.axis = [1.0,0.0,0.0]; 
 
 robot.joints.leg2_hip = {parent:"base", child:"leg2_upper"};
@@ -84,11 +84,11 @@ robot.joints.leg2_hip.origin = {xyz: [0.3,0.0,-0.9], rpy:[0,Math.PI/2,0]};
 robot.joints.leg2_hip.axis = [0.0,1.0,0.0]; 
 
 robot.joints.leg2_knee = {parent:"leg2_upper", child:"leg2_middle"};
-robot.joints.leg2_knee.origin = {xyz: [0.0,0.0,0.4], rpy:[Math.PI/4,0,0]};
+robot.joints.leg2_knee.origin = {xyz: [0.0,0.0,0.4], rpy:[-Math.PI/4,0,0]};
 robot.joints.leg2_knee.axis = [1.0,0.0,0.0]; 
 
 robot.joints.leg2_ankle = {parent:"leg2_middle", child:"leg2_lower"};
-robot.joints.leg2_ankle.origin = {xyz: [0.0,0.0,0.6], rpy:[-Math.PI/2,0,0]};
+robot.joints.leg2_ankle.origin = {xyz: [0.0,0.0,0.6], rpy:[Math.PI/2,0,0]};
 robot.joints.leg2_ankle.axis = [1.0,0.0,0.0]; 
 
 robot.joints.leg3_hip = {parent:"base", child:"leg3_upper"};
@@ -96,11 +96,11 @@ robot.joints.leg3_hip.origin = {xyz: [-0.3,0.0,0.9], rpy:[0,-Math.PI/2,0]};
 robot.joints.leg3_hip.axis = [0.0,1.0,0.0]; 
 
 robot.joints.leg3_knee = {parent:"leg3_upper", child:"leg3_middle"};
-robot.joints.leg3_knee.origin = {xyz: [0.0,0.0,0.4], rpy:[Math.PI/4,0,0]};
+robot.joints.leg3_knee.origin = {xyz: [0.0,0.0,0.4], rpy:[-Math.PI/4,0,0]};
 robot.joints.leg3_knee.axis = [1.0,0.0,0.0]; 
 
 robot.joints.leg3_ankle = {parent:"leg3_middle", child:"leg3_lower"};
-robot.joints.leg3_ankle.origin = {xyz: [0.0,0.0,0.6], rpy:[-Math.PI/2,0,0]};
+robot.joints.leg3_ankle.origin = {xyz: [0.0,0.0,0.6], rpy:[Math.PI/2,0,0]};
 robot.joints.leg3_ankle.axis = [1.0,0.0,0.0]; 
 
 robot.joints.leg4_hip = {parent:"base", child:"leg4_upper"};
@@ -108,11 +108,11 @@ robot.joints.leg4_hip.origin = {xyz: [-0.3,0.0,-0.9], rpy:[0,-Math.PI/2,0]};
 robot.joints.leg4_hip.axis = [0.0,1.0,0.0]; 
 
 robot.joints.leg4_knee = {parent:"leg4_upper", child:"leg4_middle"};
-robot.joints.leg4_knee.origin = {xyz: [0.0,0.0,0.4], rpy:[Math.PI/4,0,0]};
+robot.joints.leg4_knee.origin = {xyz: [0.0,0.0,0.4], rpy:[-Math.PI/4,0,0]};
 robot.joints.leg4_knee.axis = [1.0,0.0,0.0]; 
 
 robot.joints.leg4_ankle = {parent:"leg4_middle", child:"leg4_lower"};
-robot.joints.leg4_ankle.origin = {xyz: [0.0,0.0,0.6], rpy:[-Math.PI/2,0,0]};
+robot.joints.leg4_ankle.origin = {xyz: [0.0,0.0,0.6], rpy:[Math.PI/2,0,0]};
 robot.joints.leg4_ankle.axis = [1.0,0.0,0.0]; 
 
 robot.joints.leg5_hip = {parent:"base", child:"leg5_upper"};
@@ -120,11 +120,11 @@ robot.joints.leg5_hip.origin = {xyz: [0.3,0.0,0.3], rpy:[0,Math.PI/2,0]};
 robot.joints.leg5_hip.axis = [0.0,1.0,0.0]; 
 
 robot.joints.leg5_knee = {parent:"leg5_upper", child:"leg5_middle"};
-robot.joints.leg5_knee.origin = {xyz: [0.0,0.0,0.4], rpy:[Math.PI/4,0,0]};
+robot.joints.leg5_knee.origin = {xyz: [0.0,0.0,0.4], rpy:[-Math.PI/4,0,0]};
 robot.joints.leg5_knee.axis = [1.0,0.0,0.0]; 
 
 robot.joints.leg5_ankle = {parent:"leg5_middle", child:"leg5_lower"};
-robot.joints.leg5_ankle.origin = {xyz: [0.0,0.0,0.6], rpy:[-Math.PI/2,0,0]};
+robot.joints.leg5_ankle.origin = {xyz: [0.0,0.0,0.6], rpy:[Math.PI/2,0,0]};
 robot.joints.leg5_ankle.axis = [1.0,0.0,0.0]; 
 
 robot.joints.leg6_hip = {parent:"base", child:"leg6_upper"};
@@ -132,11 +132,11 @@ robot.joints.leg6_hip.origin = {xyz: [0.3,0.0,-0.3], rpy:[0,Math.PI/2,0]};
 robot.joints.leg6_hip.axis = [0.0,1.0,0.0]; 
 
 robot.joints.leg6_knee = {parent:"leg6_upper", child:"leg6_middle"};
-robot.joints.leg6_knee.origin = {xyz: [0.0,0.0,0.4], rpy:[Math.PI/4,0,0]};
+robot.joints.leg6_knee.origin = {xyz: [0.0,0.0,0.4], rpy:[-Math.PI/4,0,0]};
 robot.joints.leg6_knee.axis = [1.0,0.0,0.0]; 
 
 robot.joints.leg6_ankle = {parent:"leg6_middle", child:"leg6_lower"};
-robot.joints.leg6_ankle.origin = {xyz: [0.0,0.0,0.6], rpy:[-Math.PI/2,0,0]};
+robot.joints.leg6_ankle.origin = {xyz: [0.0,0.0,0.6], rpy:[Math.PI/2,0,0]};
 robot.joints.leg6_ankle.axis = [1.0,0.0,0.0]; 
 
 robot.joints.leg7_hip = {parent:"base", child:"leg7_upper"};
@@ -144,11 +144,11 @@ robot.joints.leg7_hip.origin = {xyz: [-0.3,0.0,0.3], rpy:[0,-Math.PI/2,0]};
 robot.joints.leg7_hip.axis = [0.0,1.0,0.0]; 
 
 robot.joints.leg7_knee = {parent:"leg7_upper", child:"leg7_middle"};
-robot.joints.leg7_knee.origin = {xyz: [0.0,0.0,0.4], rpy:[Math.PI/4,0,0]};
+robot.joints.leg7_knee.origin = {xyz: [0.0,0.0,0.4], rpy:[-Math.PI/4,0,0]};
 robot.joints.leg7_knee.axis = [1.0,0.0,0.0]; 
 
 robot.joints.leg7_ankle = {parent:"leg7_middle", child:"leg7_lower"};
-robot.joints.leg7_ankle.origin = {xyz: [0.0,0.0,0.6], rpy:[-Math.PI/2,0,0]};
+robot.joints.leg7_ankle.origin = {xyz: [0.0,0.0,0.6], rpy:[Math.PI/2,0,0]};
 robot.joints.leg7_ankle.axis = [1.0,0.0,0.0]; 
 
 robot.joints.leg8_hip = {parent:"base", child:"leg8_upper"};
@@ -156,12 +156,12 @@ robot.joints.leg8_hip.origin = {xyz: [-0.3,0.0,-0.3], rpy:[0,-Math.PI/2,0]};
 robot.joints.leg8_hip.axis = [0.0,1.0,0.0]; 
 
 robot.joints.leg8_knee = {parent:"leg8_upper", child:"leg8_middle"};
-robot.joints.leg8_knee.origin = {xyz: [0.0,0.0,0.4], rpy:[Math.PI/4,0,0]};
+robot.joints.leg8_knee.origin = {xyz: [0.0,0.0,0.4], rpy:[-Math.PI/4,0,0]};
 robot.joints.leg8_knee.axis = [1.0,0.0,0.0]; 
 
 robot.joints.leg8_ankle = {parent:"leg8_middle", child:"leg8_lower"};
-robot.joints.leg8_ankle.origin = {xyz: [0.0,0.0,0.6], rpy:[-Math.PI/2,0,0]};
-robot.joints.leg8_ankle.axis = [1.0,0.0,0.0]; 
+robot.joints.leg8_ankle.origin = {xyz: [0.0,0.0,0.6], rpy:[Math.PI/2,0,0]};
+robot.joints.leg8_ankle.axis = [1.0,0.0,0.0];
 
 
 

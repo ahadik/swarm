@@ -85,19 +85,19 @@ generate_rotation_matrix_Z
 		//Construct the three rotational matrices
 		var xrot = [
 			[1,0,0,0],
-			[0, Math.cos(roll), Math.sin(roll),0],
-			[0, -Math.sin(roll), Math.cos(roll),0],
+			[0, Math.cos(roll), -Math.sin(roll),0],
+			[0, Math.sin(roll), Math.cos(roll),0],
 			[0,0,0,1]
 		];
 		var yrot = [
-			[Math.cos(pitch), 0, -Math.sin(pitch),0],
+			[Math.cos(pitch), 0, Math.sin(pitch),0],
 			[0,1,0,0],
-			[Math.sin(pitch),0,Math.cos(pitch),0],
+			[-Math.sin(pitch),0,Math.cos(pitch),0],
 			[0,0,0,1]
 		];
 		var zrot = [
-			[Math.cos(yaw), Math.sin(yaw),0,0],
-			[-Math.sin(yaw), Math.cos(yaw), 0,0], 
+			[Math.cos(yaw), -Math.sin(yaw),0,0],
+			[Math.sin(yaw), Math.cos(yaw), 0,0], 
 			[0,0,1,0],
 			[0,0,0,1]
 		];
