@@ -58,7 +58,7 @@ function init() {
     pendulum.desired_dot = 0;
 
     // initialize pendulum PID servo gains
-    pendulum.servo = {kp:0.0, kd:0.0, ki:0.0};
+    pendulum.servo = {kp:2.0, kd:0.5, ki:1.5};
     accumulated_error = 0;
 
     // set time and timestep 
@@ -66,12 +66,12 @@ function init() {
     dt = 1.0;
     
     // set gravity
-    gravity = 0.01;
+    gravity = .01;
 
     // set method of numerical integration of dynamics
-    numerical_integrator = "euler";  // REQUIRED
+    //numerical_integrator = "euler";  // REQUIRED
     //numerical_integrator = "verlet";  // OPTIONAL
-    //numerical_integrator = "velocity verlet";  // REQUIRED
+    numerical_integrator = "velocity verlet";  // REQUIRED
     //numerical_integrator = "runge-kutta";  // OPTIONAL
 
     init_threejs_scene();
@@ -83,6 +83,22 @@ function init() {
 /////     ANIMATION AND INTERACTION LOOP
 //////////////////////////////////////////////////
 
+function calcTau(){
+	var pendulum_constants = pendulum.mass*pendulum.length*pendulum.length;
+	var x1=pendulum.angle;
+	var x2=pendulum.angle_dot;
+	var x3=calcAccel();
+    
+	var tau = pendulum.servo.kp*(pendulum.desired-x2)+pendulum.servo.kd*(0-x1)+pendulum.servo.ki*(x3);
+	
+	return tau;
+}
+
+function calcAccel(){
+	var accel = (-gravity/pendulum.length*Math.sin(pendulum.angle)+pendulum.control/(pendulum.mass*pendulum.length*pendulum.length))*dt;
+	return accel;
+}
+
 function animate() {
 
     // note: three.js includes requestAnimationFrame shim
@@ -93,16 +109,18 @@ function animate() {
 
 
     // key inputs for adding force to pendulum motor
-    if ( keyboard.pressed("d") )
-        pendulum.control += 0.05;
-    else if ( keyboard.pressed("a") )
-        pendulum.control += -0.05;
+    if ( keyboard.pressed("d") ){
+	    pendulum.control += 0.005;
+    }
+    else if ( keyboard.pressed("a") ){
+	    pendulum.control += -0.005;
+    }
 
     // key inputs for setting desired angle for pendulum servo
     if ( keyboard.pressed("e") )
-        pendulum.desired += 0.05;
+        pendulum.desired += 0.005;
     if ( keyboard.pressed("q") )
-        pendulum.desired += -0.05;
+        pendulum.desired += -0.005;
 
     // key input to zero controls and let pendulum swing
     if ( keyboard.pressed("s") )
@@ -114,6 +132,18 @@ function animate() {
     }
     else if (numerical_integrator === "velocity verlet") {
         // velocity version of verlet integration
+        var pendulum_constants = pendulum.mass*pendulum.length*pendulum.length;
+        
+        var y_previous = calcAccel();
+        
+        pendulum.angle = pendulum.angle+pendulum.angle_dot*dt+.5*y_previous*dt*dt;
+        
+        var y_now = calcAccel();
+        
+        pendulum.angle_dot = pendulum.angle_dot+(y_previous+y_now)/2*dt;
+
+		pendulum.control = calcTau();
+        
     }
     else if (numerical_integrator === "runge-kutta") {
         // RK4, fourth-order Runge-Kutta integration
@@ -122,15 +152,24 @@ function animate() {
         // euler integration
 
         numerical_integrator = "euler";
+        
+        var y_previous = calcAccel();
+        pendulum.angle= pendulum.angle+pendulum.angle_dot*dt;
+        pendulum.angle_dot = pendulum.angle_dot+y_previous;
+        
+        pendulum.control = calcTau();
+        
     }
+    
 
     // set the current state/angle of the pendulum
     pendulum.geom.rotation.y = pendulum.angle;  // threejs cylinders have their axes along the y-axis
-    pendulum.angle += Math.PI/160;  // REMOVE THIS!!! just to show how angle is ued
+    //pendulum.angle += Math.PI/160;  // REMOVE THIS!!! just to show how angle is ued
 
     // don't forget to advance time
+    t=t+dt;
 
-    /* output simulator variables
+    /* output simulator variables*/
     textbar.innerHTML = 
         " t = " + t.toFixed(2) + 
         " dt = " + dt.toFixed(2) + 
@@ -142,7 +181,7 @@ function animate() {
         " l = " + pendulum.length.toFixed(2) +
         " integrator = " + numerical_integrator
     ;
-    */
+    
 
     // threejs rendering update
     renderer.render( scene, camera );
