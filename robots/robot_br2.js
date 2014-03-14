@@ -59,11 +59,11 @@ robot.links = {
 robot.joints = {};
 
 robot.joints.clavicle_right_yaw = {parent:"base", child:"clavicle_right"};
-robot.joints.clavicle_right_yaw.origin = {xyz: [0.3,0.4,0.0], rpy:[Math.PI/2,0,0]};
+robot.joints.clavicle_right_yaw.origin = {xyz: [0.3,0.4,0.0], rpy:[-Math.PI/2,0,0]};
 robot.joints.clavicle_right_yaw.axis = [0.0,0.0,-1.0]; 
 
 robot.joints.shoulder_right_yaw = {parent:"clavicle_right", child:"shoulder_right"};
-robot.joints.shoulder_right_yaw.origin = {xyz: [0.0,-0.15,0.85], rpy:[-Math.PI/2,0,0]};
+robot.joints.shoulder_right_yaw.origin = {xyz: [0.0,-0.15,0.85], rpy:[Math.PI/2,0,0]};
 robot.joints.shoulder_right_yaw.axis = [0.0,0.707,0.707]; 
 
 robot.joints.upperarm_right_pitch = {parent:"shoulder_right", child:"upperarm_right"};
@@ -75,7 +75,7 @@ robot.joints.forearm_right_yaw.origin = {xyz: [0.0,0.0,0.7], rpy:[0,0,0]};
 robot.joints.forearm_right_yaw.axis = [1.0,0.0,0.0]; 
 
 robot.joints.clavicle_left_roll = {parent:"base", child:"clavicle_left"};
-robot.joints.clavicle_left_roll.origin = {xyz: [-0.3,0.4,0.0], rpy:[Math.PI/2,0,0]};
+robot.joints.clavicle_left_roll.origin = {xyz: [-0.3,0.4,0.0], rpy:[-Math.PI/2,0,0]};
 robot.joints.clavicle_left_roll.axis = [0.0,0.0,1.0]; 
 
 //////////////////////////////////////////////////

@@ -16,6 +16,15 @@ generate_rotation_matrix_Y
 generate_rotation_matrix_Z
 */
 
+	function vector_cross(a, b){
+		var cx = a[1]*b[2]-a[2]*b[1];
+		var cy = a[2]*b[0]-a[0]*b[2];
+		var cz = a[0]*b[1]-a[1]*b[0];
+		
+		cross_vec = [cx, cy, cz];
+		
+		return cross_vec;
+	}
 
 
 	//Make an identity matrix of the desired size
