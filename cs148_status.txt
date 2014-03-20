@@ -18,4 +18,7 @@
  error: steady state error in controller
  comment: I control is incorrect
  
+ Assignment 4: CHECK
+ warning: PD control should be applied to all joints
+ 
 
