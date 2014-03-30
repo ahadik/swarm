@@ -17,6 +17,7 @@
  Assignment 3: UNCHECKED
  error: steady state error in controller
  comment: I control is incorrect
+ regrade: no change
  
  Assignment 4: CHECK
  warning: PD control should be applied to all joints
