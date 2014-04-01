@@ -59,7 +59,7 @@ function init() {
     x3 = 0;
 
     // initialize pendulum PID servo gains
-    pendulum.servo = {kp:2.0, kd:2.0, ki:0.005};
+    pendulum.servo = {kp:0.50, kd:2.0, ki:0.005};
     accumulated_error = 0;
 
     // set time and timestep 
@@ -70,9 +70,9 @@ function init() {
     gravity = .01;
 
     // set method of numerical integration of dynamics
-    //numerical_integrator = "euler";  // REQUIRED
+    numerical_integrator = "euler";  // REQUIRED
     //numerical_integrator = "verlet";  // OPTIONAL
-    numerical_integrator = "velocity verlet";  // REQUIRED
+    //numerical_integrator = "velocity verlet";  // REQUIRED
     //numerical_integrator = "runge-kutta";  // OPTIONAL
 
     init_threejs_scene();
@@ -94,11 +94,8 @@ function calcTau(){
     if ( keyboard.pressed("s") )
         return 0;
     
-	//var tau = pendulum.servo.kp*(pendulum.desired-x2)+pendulum.servo.kd*(0-x1)+pendulum.servo.ki*(x3);
 	x3+=(pendulum.desired-pendulum.angle)*dt;
 	var tau = pendulum.servo.kp*(pendulum.desired-x1)+pendulum.servo.kd*(0-x2)+pendulum.servo.ki*(x3);
-	
-	
 	
 	return tau;
 }
@@ -161,8 +158,9 @@ function animate() {
 
         numerical_integrator = "euler";
         
-        var y_previous = calcAccel();
+		var y_previous = calcAccel();
         pendulum.angle= pendulum.angle+pendulum.angle_dot*dt;
+		
         pendulum.angle_dot = pendulum.angle_dot+y_previous;
         
         pendulum.control = calcTau();
