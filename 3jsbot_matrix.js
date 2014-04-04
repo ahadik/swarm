@@ -16,6 +16,56 @@ generate_rotation_matrix_Y
 generate_rotation_matrix_Z
 */
 
+	function column_to_row(matrix){
+		var width = matrix.length;
+		var height = matrix[0].length;
+		
+		var newMatrix = new Array(height);
+		for(var i=0; i<height;i++){
+			newMatrix[i]=new Array(width);
+		}
+		
+		for(var i=0; i<width;i++){
+			for(var j=0; j<height;j++){
+				newMatrix[j][i]=matrix[i][j][0];
+			}
+		}
+		return newMatrix;
+		
+	}
+
+	function scalar_mult(matrix,scalar){
+		var height = matrix.length;
+		var width = matrix[0].length;
+		for(var i=0; i<height;i++){
+			for(var j=0; j<height; j++){
+				matrix[i][j]=matrix[i][j]*scalar;
+			}
+		}
+		
+		return matrix;
+	}
+
+	function column_matrix_transpose(matrix){
+		var width = matrix.length;
+		var height = matrix[0].length;
+		var transposed = new Array(width);
+		
+		//Create an empty array for every row
+		for(var i=0; i<width;i++){
+			transposed[i]=new Array(height);
+		}
+	
+		for(var i=0; i<width;i++){
+			for(var j=0; j<height;j++){
+				transposed[i][j]=matrix[i][j][0];
+			}
+		}
+		
+		return transposed;
+		
+	}
+
 	function vector_cross(a, b){
 		var cx = a[1]*b[2]-a[2]*b[1];
 		var cy = a[2]*b[0]-a[0]*b[2];

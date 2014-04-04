@@ -362,7 +362,8 @@
 	    
 	
 	    // inverse kinematics
-	    //robot_inverse_kinematics(ik_target, "forearm_right_yaw", ik_local);
+	    var ik_local;
+	    robot_inverse_kinematics(ik_target, "forearm_right_yaw", [[0],[0],[0.5],[1]]);
 	
 	    // configuration space motion planning
 	    //robot_rrt_connect(q_desired);
@@ -377,7 +378,9 @@
 	}
 	
 	function robot_pd_control(){
-		var active = robot.joints[active_joint];
+
+		for(x in robot.joints){
+		var active = robot.joints[x];
 //		active.servo.desired = active.angle+0.1;
 		var kp = .1;
 		var tau = kp*(active.servo.desired-active.angle);
@@ -399,7 +402,7 @@
 		
 		
 		active.servo.gain = 0;
-		
+		}
 	}
 	
 	function robot_clock(){

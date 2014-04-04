@@ -70,9 +70,9 @@ function init() {
     gravity = .01;
 
     // set method of numerical integration of dynamics
-    numerical_integrator = "euler";  // REQUIRED
+    //numerical_integrator = "euler";  // REQUIRED
     //numerical_integrator = "verlet";  // OPTIONAL
-    //numerical_integrator = "velocity verlet";  // REQUIRED
+    numerical_integrator = "velocity verlet";  // REQUIRED
     //numerical_integrator = "runge-kutta";  // OPTIONAL
 
     init_threejs_scene();
@@ -88,7 +88,6 @@ function calcTau(){
 	var pendulum_constants = pendulum.mass*pendulum.length*pendulum.length;
 	var x1=pendulum.angle;
 	var x2=pendulum.angle_dot;
-	//var x3=calcAccel();
 	
 	    // key input to zero controls and let pendulum swing
     if ( keyboard.pressed("s") )
