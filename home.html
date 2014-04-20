@@ -338,7 +338,9 @@
 	    robot_apply_controls();
 	
 	    // DRAW ROBOT 
-	
+		
+
+		
 	    // forward kinematics over robot links
 	    //robot_forward_kinematics();
 		set_robot_parts();
@@ -347,6 +349,7 @@
 	    // handle user input 
 	    user_input();
 	    
+	    	    
 	    robot.dir.header = multiply_matrices(robot.links[robot.base].xform, [[0],[0],[1],[0]]);
 		robot.dir.lateral = multiply_matrices(robot.links[robot.base].xform, [[1],[0],[0],[0]]);
 	
@@ -354,17 +357,21 @@
 	
 	    // proportional-derivative control 
 
-	    robot_pd_control();
-
+	    //robot_pd_control();	    
+	    
 	    if (update_pd)
 	    	robot_clock();    
 	    update_pd = false;
 	    
-	
+
+		
 	    // inverse kinematics
 	    var ik_local;
 	    robot_inverse_kinematics(ik_target, "forearm_right_yaw", [[0],[0],[0.5],[1]]);
-	
+		
+		
+		
+		
 	    // configuration space motion planning
 	    //robot_rrt_connect(q_desired);
 	
@@ -377,48 +384,26 @@
 	    //robot_potential_field(x_desired);
 	}
 	
-	function robot_pd_control(){
-
-		for(x in robot.joints){
-		var active = robot.joints[x];
-//		active.servo.desired = active.angle+0.1;
-		var kp = .1;
-		var tau = kp*(active.servo.desired-active.angle);
-		
-		active.servo.gain = tau;
-		
-		active.angle += active.servo.gain;
-		
-		
-		var joint_quaternion = quaternion_from_axisangle(active.angle, active.axis);
-		
-		var normalized_quaternion = quaternion_normalize(joint_quaternion);
-		
-
-			
-		var quaternion_rotate_matrix = quaternion_to_rotation_matrix(normalized_quaternion);
-
-		active.DOF.rotate = quaternion_rotate_matrix;
-		
-		
-		active.servo.gain = 0;
-		}
-	}
 	
 	function robot_clock(){
 		var curdate = new Date();
-		var angle = curdate.getSeconds()/60*4*Math.PI;
+		var angle = curdate.getSeconds()/60*2*Math.PI;
 		
-		console.log(angle);
-		console.log(angle);
-		
+		//console.log(angle);
+		//console.log(angle);
+//		console.log(angle);		
 
-		robot.joints[active_joint].servo.desired = angle;
-		if(robot.joints[active_joint].angle > 4*Math.PI){
-			robot.joints[active_joint].angle-=4*Math.PI;
-			robot.joints[active_joint].servo.desired-=4*Math.PI;
+		for (x in robot.joints){
+			robot.joints[x].servo.desired = angle;
+			
+
+			
+			//if(robot.joints[x].angle > 4*Math.PI){
+				//robot.joints[active_joint].angle-=4*Math.PI;
+			//	robot.joints[x].servo.desired-=4*Math.PI;
+			//}
 		}
-
+		
 		
 		robot_pd_control();
 		

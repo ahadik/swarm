@@ -65,6 +65,22 @@ function set_robot_parts(){
         ];
         
         var parentXForm = robot.links[robot.joints[x].parent].xform;
+        
+        
+			var active = robot.joints[x];
+		
+		
+			var joint_quaternion = quaternion_from_axisangle(active.angle, active.axis);
+		
+			var normalized_quaternion = quaternion_normalize(joint_quaternion);
+		
+			var quaternion_rotate_matrix = quaternion_to_rotation_matrix(normalized_quaternion);
+
+			active.DOF.rotate = quaternion_rotate_matrix;
+		
+			//active.servo.gain = 0;
+			//active.control = 0;
+
 
         var xForm = multMultiMatrices([parentXForm,translationMatrix, rotateMatrix, robot.joints[x].DOF.rotate]);
         
