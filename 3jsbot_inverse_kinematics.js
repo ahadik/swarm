@@ -38,10 +38,16 @@ function getOn(joint, endeffector_global_pos){
 	var end_y = endeffector_global_pos[1][3];
 	var end_z = endeffector_global_pos[2][3];
 	
-	var xyz_mult = [[joint.origin.xyz[0]],[joint.origin.xyz[1]],[joint.origin.xyz[2]],[1]];
-	var global_xyz = multiply_matrices(joint.xform,xyz_mult);
+	//var xyz_mult = [[joint.origin.xyz[0]],[joint.origin.xyz[1]],[joint.origin.xyz[2]],[1]];
 	
-	var o_sub = [end_x-joint.xform[0][3],end_y-joint.xform[1][3],end_z-joint.xform[2][3]];
+	var xyz_mult = [[0],[0],[0],[1]];
+	
+	var global_xyz = multiply_matrices(joint.xform,xyz_mult);
+	console.log(xyz_mult);
+	console.log(global_xyz);
+	
+	//var o_sub = [end_x-joint.xform[0][3],end_y-joint.xform[1][3],end_z-joint.xform[2][3]];
+	var o_sub = [end_x-global_xyz[0][0],end_y-global_xyz[0][1],end_z-global_xyz[0][2]];
 	
 	return o_sub;
 }
@@ -68,30 +74,33 @@ function pseudo_inverse(jacobian, target_pos, global_end){
 	dx[5]=[0];
 	
 	
-	pseudoInverseMult = special_mult(jacobianRow, jacobianTrans);
+	pseudoInverseMult = special_mult(jacobianTrans, jacobianRow);
 
-	
+	console.log(pseudoInverseMult);
 
 	pseudoInverse = numeric.inv(pseudoInverseMult);
 	
-	console.log(pseudoInverse);
+	//console.log(pseudoInverse);
 	
-/*	
-	jacobiansMult = multiply_matrices(jacobianTrans, pseudoInverse);
+
+	jacobiansMult = multiply_matrices(pseudoInverse, jacobianTrans);
 	matrix = multiply_matrices(jacobiansMult, dx);
 	
 	finalMat = scalar_mult(matrix,alpha);
 	return finalMat;
-	*/
+	
 	
 }
 
 
 function jacobian_transpose(jacobian, target_pos, global_end){
-var alpha = 0.01;
+var alpha = 0.1;
+myJacob = jacobian;
+//this is now a transposed row matrix
 var jacobianTrans = column_matrix_transpose(jacobian);
 
 var dx = new Array(6);
+
 dx[0]=[target_pos[0]-global_end[0][3]];
 dx[1]=[target_pos[1]-global_end[1][3]];
 dx[2]=[target_pos[2]-global_end[2][3]];
@@ -99,6 +108,14 @@ dx[3]=[0];
 dx[4]=[0];
 dx[5]=[0];
 
+/*
+dx[0]=[global_end[0][3]-target_pos[0]];
+dx[1]=[global_end[1][3]-target_pos[1]];
+dx[2]=[global_end[2][3]-target_pos[2]];
+dx[3]=[0];
+dx[4]=[0];
+dx[5]=[0];
+*/
 var pseudo = multiply_matrices(jacobianTrans,dx);
 
 var pseudo_scaled = scalar_mult(pseudo,alpha);
@@ -124,18 +141,21 @@ function getZi(joint){
 
 function applyPseudo(pseudo, joint){
 	
-	var workingJoint = robot.joints[joint];
+	var workingJoint = robot.joints[joint].name;
+	
+	
 
 	var count = 0;
 	
-	while(workingJoint.parent!="base"){
-		workingJoint.control=pseudo[count][0];
+	while(robot.joints[workingJoint].parent!="base"){
+		robot.joints[workingJoint].control=pseudo[count][0];
 
 		count++;
-		workingJoint=robot.joints[robot.links[workingJoint.parent].parent];
+		//set the working joint to 
+		workingJoint=robot.joints[robot.links[robot.joints[workingJoint].parent].parent].name;
 	}
 	
-	workingJoint.control=pseudo[count][0];	
+	robot.joints[workingJoint].control=pseudo[count][0];	
 
 }
 
@@ -147,7 +167,7 @@ function iterate_inverse_kinematics(target_pos, endeffector_joint, endeffector_l
         simpleApplyMatrix(endeffector_geom, matrix_2Darray_to_threejs(endeffector_global_pos));
         simpleApplyMatrix(target_geom, matrix_2Darray_to_threejs([[1,0,0,target_pos[0]],[0,1,0,target_pos[1]],[0,0,1,target_pos[2]],[0,0,0,target_pos[3]]]));
 
-	jacobian = new Array(4);
+	var jacobian = new Array(4);
 	var jacobianVec;
 		
 	var workingJoint = robot.joints[endeffector_joint];
@@ -158,29 +178,29 @@ function iterate_inverse_kinematics(target_pos, endeffector_joint, endeffector_l
 		var zi = getZi(workingJoint.name);
 		var o_sub = getOn(workingJoint.name, endeffector_global_pos);
 
-				
-		jacobianVec = getJacobianVector (zi, o_sub);
+		//column vector
+		var jacobianVec = getJacobianVector (zi, o_sub);
 		jacobian[count]=jacobianVec;
 		workingJoint = robot.joints[robot.links[workingJoint.parent].parent];
 		count++;
 	}
 	
-	zi = getZi(workingJoint.name, endeffector_global_pos);
+	var zi = getZi(workingJoint.name, endeffector_global_pos);
 	
-	o_sub = getOn(workingJoint.name, endeffector_global_pos);
+	var o_sub = getOn(workingJoint.name, endeffector_global_pos);
 	
-	jacobianVec = getJacobianVector (zi, o_sub);
+	var jacobianVec = getJacobianVector (zi, o_sub);
 	
 	
 	jacobian[count]=jacobianVec;
-
+	//so the jacobian is a column matrix
 	
-	//var deltatheta = jacobian_transpose(jacobian, target_pos, endeffector_global_pos);
-	pseudo_inverse(jacobian, target_pos, endeffector_global_pos);
+	var deltatheta = jacobian_transpose(jacobian, target_pos, endeffector_global_pos);
+	//pseudo_inverse(jacobian, target_pos, endeffector_global_pos);
 	
-	//deltatheta = pseudo_inverse(jacobian, target_pos, endeffector_global_pos);
+	//var deltatheta = pseudo_inverse(jacobian, target_pos, endeffector_global_pos);
 
-	//applyPseudo(deltatheta,endeffector_joint);
+	applyPseudo(deltatheta,endeffector_joint);
 	//robot_pd_control();
 
 
