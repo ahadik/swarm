@@ -25,4 +25,9 @@
  Assignment 5: UNCHECKED
  error: endeffector does not converge to target for all tests
  
+ Assignment 6: UNCHECKED
+ error: planner does not find valid motion plan for all test cases
+ warning: planner appears to grow trees only from start location
+ comment: poses in plan look to be in reverse order
+ 
 
