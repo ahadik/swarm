@@ -34,4 +34,9 @@
  regrade: working properly
  comment: great catch finding bug in collision bbox code!
  
+ Assignment 7: CHECK
+ 
+ Assignments checked: 7/7
+ Final grade: A (200-level credit eligible)
+ 
 
