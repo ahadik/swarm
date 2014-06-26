@@ -4,6 +4,9 @@
 //////////////////////////////////////////////////
 var epsilon = .2;
 var isConnected = false;
+numParticles = 10;
+particleArray = [];
+particlePartners = [];
 // initialize threejs scene, user input, and robot kinematics
 init();
 
@@ -180,9 +183,9 @@ function rrt_planning_iteration() {
 	//extend treeA towards the random vertex one step
 	//Nearest neighbor is an object, vertex is just points
   //console.log("single extend");
-	rrt_extend(treeA, nearestNeighbor, vertex,false);
+	//rrt_extend(treeA, nearestNeighbor, vertex,false);
 
-	draw_2D_configuration(treeA.vertices[treeA.newest].vertex);
+	//draw_2D_configuration(treeA.vertices[treeA.newest].vertex);
 	//Find the vertex on treeB that is closest to the newly created vertex on treeB
 	var nearestB = nearest_neighbor(treeA.vertices[treeA.newest].vertex,treeB);
 
@@ -202,7 +205,7 @@ function rrt_planning_iteration() {
         if(isConnected){break;}
         if(extendBool){
           nearestB=treeB.vertices[treeB.newest];
-          draw_2D_configuration(nearestB.vertex);
+          //draw_2D_configuration(nearestB.vertex);
         }
 
 
@@ -240,10 +243,41 @@ function tree_init(q) {
     return tree;
 }
 
+function findPartners(){
+	
+}
+
 function init() {
+
+	particleArray.length = numParticles;
+	
+	for(i=0; i<particleArray.length; i++){
+		var coordX = Math.random()*8-2;
+		var coordY = Math.random()*8-2;
+		
+		particleArray[i]=[coordX,coordY];
+	}
+	
+	for(particle in particleArray){
+		draw_2D_configuration(particleArray[particle]);
+		var partnerA = Math.floor(Math.random()*numParticles);
+		var partnerB = Math.floor(Math.random()*numParticles);
+		while(partnerA==partnerB){
+			partnerB = Math.floor(Math.random()*numParticles);	
+		}
+		var partner = [partnerA,partnerB];
+		particlePartners[particle] = partner;
+	}
+	
+	for(particle in particleArray){
+		
+		draw_2D_edge_configurations(particleArray[particlePartners[particle][0]],particleArray[particlePartners[particle][1]]);
+	}
+	
+
     // specify start and goal configurations
-    q_start_config = [0,0];
-    q_goal_config = [4,4];
+    q_start_config = [-2,-2];
+    q_goal_config = [6,6];
     q_init = q_start_config;
     q_goal = q_goal_config;
 
@@ -278,7 +312,7 @@ function animate() {
     // http://learningwebgl.com/blog/?p=3189
     requestAnimationFrame( animate );
 
-    draw_robot_world();
+    //draw_robot_world();
 
     // specify rrt algorithm to use for planning
     rrt_alg = 1;  // 0: basic rrt, 1: rrt_connect
@@ -317,6 +351,10 @@ function draw_robot_world() {
         ctx.fillRect((range[j][0][0]*100+200),(range[j][1][0]*100+200),(range[j][0][1]-range[j][0][0])*100,(range[j][1][1]-range[j][1][0])*100);
     }
 
+}
+
+function clearFrame(){
+	ctx.clearRect(0,0,800,800);
 }
 
 function draw_2D_configuration(q) {
@@ -359,18 +397,20 @@ function set_planning_scene() {
     range = []; // global variable
 
     // world boundary
+    /*
     range[0] = [ [-1.1,5.1],[-1.1,-1] ];
     range[1] = [ [-1.1,5.1],[5,5.1] ];
     range[2] = [ [-1.1,-1],[-1.1,5.1] ];
     range[3] = [ [5,5.1],[-1.1,5.1] ];
-
+*/
 /*  misc stuff with narrow opening
 */
+/*
     range[4] = [ [1,2],[1,2] ];
     range[5] = [ [3,3.3],[1,4] ];
     range[6] = [ [0.6,0.7],[0.4,0.7] ];
     range[7] = [ [3.7,3.9],[-0.8,5] ];
-
+*/
 /*  narrow path 1
     range[4] = [ [1,3],[4,5] ];
     range[5] = [ [1,3],[-1,2] ];
@@ -394,25 +434,6 @@ function set_planning_scene() {
 }
 
 function collision_test(q) {
-
-    var j;
-
-    // test for collision with each object
-    for (j=0;j<range.length;j++) {
-
-        // assume configuration is in collision
-        var in_collision = true;
-
-        // no collision detected, if configuration is outside obstacle along any dimension
-        for (i=0;i<q.length;i++) {
-            if ((q[i]<range[j][i][0])||(q[i]>range[j][i][1]))
-                in_collision = false;
-        }
-
-        // return collision, if configuration inside obstacle extents along all dimensions
-        if (in_collision)
-            return true;
-    }
 
     // return no collision, if no collision detected with any obstacle
     return false;
