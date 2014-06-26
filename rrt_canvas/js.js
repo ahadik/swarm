@@ -7,8 +7,6 @@ var isConnected = false;
 numParticles = 10;
 particleArray = [];
 particlePartners = [];
-// initialize threejs scene, user input, and robot kinematics
-init();
 
 // main animation loop maintained by threejs
 animate();
@@ -243,12 +241,7 @@ function tree_init(q) {
     return tree;
 }
 
-function findPartners(){
-	
-}
-
-function init() {
-
+function generatePoints(){
 	particleArray.length = numParticles;
 	
 	for(i=0; i<particleArray.length; i++){
@@ -258,6 +251,9 @@ function init() {
 		particleArray[i]=[coordX,coordY];
 	}
 	
+}
+
+function paintPoints(){
 	for(particle in particleArray){
 		draw_2D_configuration(particleArray[particle]);
 		var partnerA = Math.floor(Math.random()*numParticles);
@@ -268,13 +264,27 @@ function init() {
 		var partner = [partnerA,partnerB];
 		particlePartners[particle] = partner;
 	}
-	
-	for(particle in particleArray){
-		
-		draw_2D_edge_configurations(particleArray[particlePartners[particle][0]],particleArray[particlePartners[particle][1]]);
-	}
-	
+}
 
+function paintEdges(){
+	for(particle in particleArray){
+		draw_2D_edge_configurations(particleArray[particle],particleArray[particlePartners[particle][0]]);
+		draw_2D_edge_configurations(particleArray[particle],particleArray[particlePartners[particle][1]]);
+	}
+}
+
+function hideEdges(){
+	clearFrame();
+	paintPoints();
+}
+
+
+
+function init() {
+
+	generatePoints();
+	paintPoints();
+	
     // specify start and goal configurations
     q_start_config = [-2,-2];
     q_goal_config = [6,6];
@@ -288,7 +298,7 @@ function init() {
     currTree = 0;
 
     // flag to continue rrt iterations
-    rrt_iterate = true;
+    rrt_iterate = false;
     rrt_iter_count = 0;
 
     // set the world for the planner (stored as "range" global variable)
