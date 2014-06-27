@@ -50,26 +50,6 @@ function findRandom(){
 	return vertex;
 }
 
-//parent is an object, child is just a vertex
-function tree_add_vertex(parent,child, tree){
-
-	//Add the new child to the tree
-	tree.vertices[tree.newest+1] = {};
-	tree.vertices[tree.newest+1].vertex = child;
-	tree.vertices[tree.newest+1].edges = [];
-	tree.vertices[tree.newest+1].parent = parent;
-	
-	draw_2D_edge_configurations(parent.vertex,tree.vertices[tree.newest+1].vertex);
-
-	//add the new child as a child of the parent
-	parent.edges[parent.edges.length] = tree.vertices[tree.newest+1];
-	tree.newest++;
-}
-
-function connect_trees(vertexA,vertexB){
-	vertexA.connection = vertexB;
-	vertexB.connection = vertexA;
-}
 
 
 
@@ -141,19 +121,6 @@ function getDistance(pointA, pointB){
 	return dist;
 }
 
-function nearest_neighbor(q,tree){
-	var nearest = [Infinity,Infinity];
-	var nearestDist = Infinity;
-
-	for (vertex in tree.vertices){
-		var testDist = getDistance(q, tree.vertices[vertex].vertex);
-		if(testDist<nearestDist){
-			nearestDist = testDist;
-			nearest = tree.vertices[vertex];
-		}
-	}
-	return nearest;
-}
 
 function rrt_planning_iteration() {
   if(!isConnected){
@@ -223,23 +190,6 @@ function rrt_planning_iteration() {
 }
 }
 
-function tree_init(q) {
-
-    // create tree object
-    var tree = {};
-
-    // initialize with vertex for given configuration
-    tree.vertices = [];
-    tree.vertices[0] = {};
-    tree.vertices[0].vertex = q;
-    tree.vertices[0].edges = [];
-    tree.vertices[0].parent = null;
-
-    // maintain index of newest vertex added to tree
-    tree.newest = 0;
-
-    return tree;
-}
 
 function generatePoints(){
 	particleArray.length = numParticles;
@@ -258,9 +208,12 @@ function paintPoints(){
 		draw_2D_configuration(particleArray[particle]);
 		var partnerA = Math.floor(Math.random()*numParticles);
 		var partnerB = Math.floor(Math.random()*numParticles);
-		while(partnerA==partnerB){
-			partnerB = Math.floor(Math.random()*numParticles);	
+		
+		while((partnerA==particle)||(partnerB==particle)||(partnerA==partnerB)){
+			partnerA = Math.floor(Math.random()*numParticles);
+			partnerB = Math.floor(Math.random()*numParticles);
 		}
+		
 		var partner = [partnerA,partnerB];
 		particlePartners[particle] = partner;
 	}
@@ -276,6 +229,33 @@ function paintEdges(){
 function hideEdges(){
 	clearFrame();
 	paintPoints();
+}
+
+function findEqual(main){
+
+	var mainPoint = particleArray[main];
+	var pointA = particleArray[particlePartners[main][0]];
+	var pointB = particleArray[particlePartners[main][1]];
+	
+	draw_2D_edge_configurations(mainPoint, pointA);
+	draw_2D_edge_configurations(mainPoint, pointB);
+
+	var distance = getDistance(pointA, pointB);
+	var leftPoint;
+	var rightPoint;
+	
+	if(pointA[0]<pointB[0]){
+		leftPoint=pointA;
+		rightPoint=pointB;
+	}else{
+		leftPoint=pointB;
+		rightPoint=pointA;
+	}
+	
+	var vertDiff = rightPoint[1]-leftPoint[1];
+	var angle = Math.asin(vertDiff/distance)*-1;
+	return angle;
+	
 }
 
 
@@ -323,20 +303,6 @@ function animate() {
     requestAnimationFrame( animate );
 
     //draw_robot_world();
-
-    // specify rrt algorithm to use for planning
-    rrt_alg = 1;  // 0: basic rrt, 1: rrt_connect
-
-    // make sure the rrt iterations are not running faster than animation update
-    if (rrt_iterate && (Date.now()-cur_time > 10)) {
-      if(!isConnected){
-        console.log("iterating");
-        rrt_planning_iteration();
-      }
-      // update time marker for last iteration update
-      cur_time = Date.now();
-
-   }
 
 }
 
