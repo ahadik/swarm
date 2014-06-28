@@ -2,21 +2,29 @@
 //////////////////////////////////////////////////
 /////     MAIN FUNCTION CALLS
 //////////////////////////////////////////////////
-var epsilon = .2;
+//var epsilon = .2;
 var isConnected = false;
-numParticles = 10;
+numParticles = 50;
 particleArray = [];
 particlePartners = [];
-
+lineBool = false;
 animateBool = true;
+scalingFactor = .01;
 
 // main animation loop maintained by threejs
 animate();
 
-
 //////////////////////////////////////////////////
 /////     INITIALIZATION FUNCTION DEFINITONS
 //////////////////////////////////////////////////
+
+function toggleLines(){
+	if(lineBool){
+		lineBool = false;
+	}else{
+		lineBool = true;
+	}
+}
 
 function setAnimate(){
 	if(animateBool){
@@ -26,24 +34,6 @@ function setAnimate(){
 	}
 }
 
-function colorPath(connectA, connectB){
-  var workingNode = connectA;
-  var path=[];
-  
-  while(workingNode.parent!=null){
-    path.unshift(workingNode);
-    workingNode=workingNode.parent;
-  }
-
-  workingNode = connectB;
-  console.log(connectB);
-  while(workingNode.parent!=null){
-    path.push(workingNode);
-    workingNode=workingNode.parent;
-  }
-
-  draw_highlighted_path(path);
-}
 
 function findRandom(){
 	var x = (Math.random()*6)-1;
@@ -59,9 +49,6 @@ function findRandom(){
 
 	return vertex;
 }
-
-
-
 
 //neighbor is a vertex object, desired is just the configuration points
 function extend(point, desired, epsilon){
@@ -94,75 +81,6 @@ function getDistance(pointA, pointB){
 	var dist = Math.sqrt(Math.pow((pointA[0]-pointB[0]),2)+Math.pow((pointA[1]-pointB[1]),2));
 
 	return dist;
-}
-
-
-function rrt_planning_iteration() {
-  if(!isConnected){
-    //console.log("Not connected");
-	//get a random vertex
-	var vertex = findRandom();
-	var treeA;
-	var treeB;
-
-
-	if(currTree==0){
-		treeA = globalTrees[0];
-		treeB = globalTrees[1];
-		currTree=1;
-	}else if(currTree==1){
-		treeA = globalTrees[1];
-		treeB = globalTrees[0];
-		currTree=0;
-	}
-
-	//find the nearest neighbor on tree A to the randomly found vertex
-	var nearestNeighbor = nearest_neighbor(vertex,treeA);
-
-
-	//extend treeA towards the random vertex one step
-	//Nearest neighbor is an object, vertex is just points
-  //console.log("single extend");
-	//rrt_extend(treeA, nearestNeighbor, vertex,false);
-
-	//draw_2D_configuration(treeA.vertices[treeA.newest].vertex);
-	//Find the vertex on treeB that is closest to the newly created vertex on treeB
-	var nearestB = nearest_neighbor(treeA.vertices[treeA.newest].vertex,treeB);
-
-	//While extension can proceed without collision, call rrt_extend extending treeA. If extend returns true, update nearestNeighbor to be the recently added element.
-
-  var extendBool = true;
-
-  var count = 0;
-  while(extendBool){
-    //console.log("extending");
-
-    if (rrt_iterate && (Date.now()-cur_time > 10)) {
-
-        if(count == 10){break;}
-        count++;
-        extendBool = rrt_extend(treeB, nearestB, treeA.vertices[treeA.newest],true);
-        if(isConnected){break;}
-        if(extendBool){
-          nearestB=treeB.vertices[treeB.newest];
-          //draw_2D_configuration(nearestB.vertex);
-        }
-
-
-        // update time marker for last iteration update
-        cur_time = Date.now();
-   }
-   if(isConnected){break;}
-	}
-	if(isConnected){
-		//connection has been made
-    rrt_iterate=false;
-		return true;
-	}else{
-		// connection has not been made
-		return false;
-	}
-}
 }
 
 
@@ -228,12 +146,6 @@ function matrixMult(mat1,mat2){
 				//Iterate over all row of the output matrix
 				for (var i = 0; i<mat1Width; i++){
 
-					/*
-					console.log("HERE");
-					console.log(x);
-					console.log(y);
-					console.log(i);
-				*/
 					//add the multiplication of the two entries of interest to the val tally
 					val = val+mat1[y][i]*mat2[i][x];
 				}
@@ -303,7 +215,6 @@ function findEqual(main){
 
 function calcStep(point, target){
 	var error = getDistance(point, target);
-	var scalingFactor = .1;
 	var distance = error*scalingFactor;
 	
 	return extend(point, target, distance);
@@ -345,7 +256,7 @@ function animate() {
 	    
 	    clearFrame();
 	    paintPoints();
-	    paintEdges();	
+	    if(lineBool){paintEdges()};	
 	}
 
 }
@@ -381,7 +292,7 @@ function draw_2D_configuration(q) {
     // draw location of 2D configuration on canvas
     c = document.getElementById("myCanvas");
     ctx = c.getContext("2d");
-    ctx.fillStyle = "#8888AA";
+    ctx.fillStyle = "#000000";
     ctx.fillRect((q[0]*100+200)-3,(q[1]*100+200)-3,6,6);
 }
 
@@ -406,52 +317,6 @@ function draw_highlighted_path(path) {
         ctx.lineTo(path[i].vertex[0]*100+200,path[i].vertex[1]*100+200);
     }
     ctx.stroke();
-}
-
-//////////////////////////////////////////////////
-/////     COLLISION SUPPORT ROUTINES
-//////////////////////////////////////////////////
-
-function set_planning_scene() {
-
-    // obstacles specified as a range along [0] (x-dimension) and [1] y-dimension
-    range = []; // global variable
-
-    // world boundary
-    /*
-    range[0] = [ [-1.1,5.1],[-1.1,-1] ];
-    range[1] = [ [-1.1,5.1],[5,5.1] ];
-    range[2] = [ [-1.1,-1],[-1.1,5.1] ];
-    range[3] = [ [5,5.1],[-1.1,5.1] ];
-*/
-/*  misc stuff with narrow opening
-*/
-/*
-    range[4] = [ [1,2],[1,2] ];
-    range[5] = [ [3,3.3],[1,4] ];
-    range[6] = [ [0.6,0.7],[0.4,0.7] ];
-    range[7] = [ [3.7,3.9],[-0.8,5] ];
-*/
-/*  narrow path 1
-    range[4] = [ [1,3],[4,5] ];
-    range[5] = [ [1,3],[-1,2] ];
-    range[6] = [ [1,1.95],[2,3.8] ];
-*/
-
-/*  narrow path 2
-    range[4] = [ [1,3],[4,5] ];
-    range[5] = [ [1,3],[-1,2] ];
-    range[6] = [ [1,1.9],[2,3.8] ];
-    range[7] = [ [2.1,3],[2.2,4] ];
-*/
-
-/*  three compartments
-    range[4] = [ [1,1.3],[4,5] ];
-    range[5] = [ [1,1.3],[-1,3.5] ];
-    range[6] = [ [2.7,3],[-1,0] ];
-    range[7] = [ [2.7,3],[.5,5] ];
-*/
-
 }
 
 function collision_test(q) {
