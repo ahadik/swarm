@@ -8,6 +8,8 @@ numParticles = 10;
 particleArray = [];
 particlePartners = [];
 
+animateBool = true;
+
 // main animation loop maintained by threejs
 animate();
 
@@ -15,6 +17,14 @@ animate();
 //////////////////////////////////////////////////
 /////     INITIALIZATION FUNCTION DEFINITONS
 //////////////////////////////////////////////////
+
+function setAnimate(){
+	if(animateBool){
+		animateBool = false;
+	}else{
+		animateBool = true;
+	}
+}
 
 function colorPath(connectA, connectB){
   var workingNode = connectA;
@@ -54,65 +64,30 @@ function findRandom(){
 
 
 //neighbor is a vertex object, desired is just the configuration points
-function rrt_extend(tree, neighbor, desiredIn, connectBool){
+function extend(point, desired, epsilon){
 
-  var desired;
-  if(connectBool){
-    desired = desiredIn.vertex;
-  }else{
-    desired = desiredIn;
-  }
-
-	var distance = getDistance(neighbor.vertex, desired);
-
-
-
-	if((distance<epsilon)&&connectBool){
-
-		isConnected = true;
-		rrt_iterate=false;
-		connect_trees(neighbor,desiredIn);
-    console.log("CONNECTED");
-    colorPath(neighbor,desiredIn);
-		return false;
-	}
-
-
-	var xDiff = desired[0]-neighbor.vertex[0];
-	var yDiff = desired[1]-neighbor.vertex[1];
-
-
+	var xDiff = desired[0]-point[0];
+	var yDiff = desired[1]-point[1];
 
 	//Create a new vertex a distance of epsilon away from the neighbor
-
 	var theta = Math.atan(yDiff/xDiff);
 
-  var newY = Math.sin(theta)*epsilon+neighbor.vertex[1];
-  var newX = Math.cos(theta)*epsilon+neighbor.vertex[0];
-
-  if((yDiff<0)&&(xDiff<0)){
-    newY = -Math.sin(theta)*epsilon+neighbor.vertex[1];
-    newX = -Math.cos(theta)*epsilon+neighbor.vertex[0];
-  }
-
-
-  if((xDiff<0)&&(yDiff>0)){
-    newY = -Math.sin(theta)*epsilon+neighbor.vertex[1];
-    newX = -Math.cos(theta)*epsilon+neighbor.vertex[0];
-  }
+	var newY = Math.sin(theta)*epsilon+point[1];
+	var newX = Math.cos(theta)*epsilon+point[0];
+	
+	if((yDiff<0)&&(xDiff<0)){
+		newY = -Math.sin(theta)*epsilon+point[1];
+		newX = -Math.cos(theta)*epsilon+point[0];
+	}
+	
+	if((xDiff<0)&&(yDiff>0)){
+		newY = -Math.sin(theta)*epsilon+point[1];
+		newX = -Math.cos(theta)*epsilon+point[0];
+	}
 
 	var newVertex = [newX,newY];
 
-	//If the new vertex is a collision, return false
-	if(collision_test(newVertex)){
-		return false;
-	}else{
-		tree_add_vertex(neighbor,newVertex, tree);
-		return true;
-	}
-
-
-
+	return newVertex;
 }
 
 function getDistance(pointA, pointB){
@@ -221,8 +196,8 @@ function paintPoints(){
 
 function paintEdges(){
 	for(particle in particleArray){
-		draw_2D_edge_configurations(particleArray[particle],particleArray[particlePartners[particle][0]]);
-		draw_2D_edge_configurations(particleArray[particle],particleArray[particlePartners[particle][1]]);
+		draw_2D_edge_configurations(particleArray[particle],particleArray[particlePartners[particle][0]], "#000000");
+		draw_2D_edge_configurations(particleArray[particle],particleArray[particlePartners[particle][1]], "#000000");
 	}
 }
 
@@ -231,16 +206,78 @@ function hideEdges(){
 	paintPoints();
 }
 
+function matrixMult(mat1,mat2){
+		//Instantiate variables representing height and width of the output matrix, multMatrices
+		var height = mat1.length;
+		var width = mat2[0].length;
+		var mat1Width = mat1[0].length;
+		var multMatrices = new Array();
+		
+		//Create empty arrays for all rows of the multiplied matrix
+		for(var a = 0; a<height;a++){
+			multMatrices[a]=[];
+		}
+
+		//For each entry of the output matrix
+		for (var y = 0; y<height; y++){
+
+			for (var x = 0; x<width; x++){
+							
+				//Instantiate a variable for holding the tallied value for this index
+				var val=0;
+				//Iterate over all row of the output matrix
+				for (var i = 0; i<mat1Width; i++){
+
+					/*
+					console.log("HERE");
+					console.log(x);
+					console.log(y);
+					console.log(i);
+				*/
+					//add the multiplication of the two entries of interest to the val tally
+					val = val+mat1[y][i]*mat2[i][x];
+				}
+				//Set the val tally
+				multMatrices[y][x]=val;
+			}
+		}
+		
+		return multMatrices;
+	}
+
+function solveEquilateral(leftPoint, rightPoint, dir){
+	var normalizedEndeffector = [[rightPoint[0]-leftPoint[0]], [rightPoint[1]-leftPoint[1]]];
+	var radianRotation = 60*Math.PI/180*dir;
+	var rotationMatrix = [[Math.cos(radianRotation), -Math.sin(radianRotation)],[Math.sin(radianRotation), Math.cos(radianRotation)]];
+	var rotatedVector = matrixMult(rotationMatrix,normalizedEndeffector);
+	var goalPoint = [rotatedVector[0][0]+leftPoint[0], rotatedVector[1][0]+leftPoint[1]];
+	return goalPoint;
+}
+
+function getClosest(target, pointA, pointB){
+	var distA = getDistance(target, pointA);
+	var distB = getDistance(target, pointB);
+	if(distA<distB){
+		return pointA;
+	}else{
+		return pointB;
+	}
+}
+
 function findEqual(main){
 
 	var mainPoint = particleArray[main];
 	var pointA = particleArray[particlePartners[main][0]];
 	var pointB = particleArray[particlePartners[main][1]];
 	
-	draw_2D_edge_configurations(mainPoint, pointA);
-	draw_2D_edge_configurations(mainPoint, pointB);
+	//draw_2D_edge_configurations(mainPoint, pointA, "#000000");
+	//draw_2D_edge_configurations(mainPoint, pointB, "#000000");
 
 	var distance = getDistance(pointA, pointB);
+	
+	console.log(distance);
+	
+	//left is point of rotation (reference) and right is endeffector
 	var leftPoint;
 	var rightPoint;
 	
@@ -252,37 +289,30 @@ function findEqual(main){
 		rightPoint=pointA;
 	}
 	
-	var vertDiff = rightPoint[1]-leftPoint[1];
-	var angle = Math.asin(vertDiff/distance)*-1;
-	return angle;
+	var solutionA = solveEquilateral(leftPoint, rightPoint, 1);
+	var solutionB = solveEquilateral(leftPoint, rightPoint, -1);
 	
+	var targetPoint = getClosest(mainPoint, solutionA, solutionB);
+	
+	//draw_2D_edge_configurations(leftPoint,targetPoint, "#DD4000");
+	//draw_2D_edge_configurations(rightPoint,targetPoint, "#DD4000");
+	//draw_2D_edge_configurations(leftPoint,rightPoint, "#DD4000");
+	
+	return calcStep(mainPoint, targetPoint);
 }
 
-
+function calcStep(point, target){
+	var error = getDistance(point, target);
+	var scalingFactor = .1;
+	var distance = error*scalingFactor;
+	
+	return extend(point, target, distance);
+}
 
 function init() {
 
 	generatePoints();
 	paintPoints();
-	
-    // specify start and goal configurations
-    q_start_config = [-2,-2];
-    q_goal_config = [6,6];
-    q_init = q_start_config;
-    q_goal = q_goal_config;
-
-    globalTreeA = tree_init(q_start_config);
-    globalTreeB = tree_init(q_goal_config);
-
-    globalTrees = [globalTreeA, globalTreeB];
-    currTree = 0;
-
-    // flag to continue rrt iterations
-    rrt_iterate = false;
-    rrt_iter_count = 0;
-
-    // set the world for the planner (stored as "range" global variable)
-    set_planning_scene();
 
     // make sure the rrt iterations are not running faster than animation update
     cur_time = Date.now();
@@ -302,7 +332,21 @@ function animate() {
     // http://learningwebgl.com/blog/?p=3189
     requestAnimationFrame( animate );
 
-    //draw_robot_world();
+	if(animateBool){
+		var newParPos = [];
+	    newParPos.length = particleArray.length;
+	
+	    for (particle in particleArray){	
+		    var goal = findEqual(particle);
+		    newParPos[particle] = goal;
+	    }
+	    
+	    particleArray = newParPos;
+	    
+	    clearFrame();
+	    paintPoints();
+	    paintEdges();	
+	}
 
 }
 
@@ -341,10 +385,11 @@ function draw_2D_configuration(q) {
     ctx.fillRect((q[0]*100+200)-3,(q[1]*100+200)-3,6,6);
 }
 
-function draw_2D_edge_configurations(q1,q2) {
+function draw_2D_edge_configurations(q1,q2, style) {
     // draw line between locations of two 2D configurations on canvas
     c = document.getElementById("myCanvas");
     ctx = c.getContext("2d");
+    ctx.strokeStyle = style;
     ctx.beginPath();
     ctx.moveTo(q1[0]*100+200,q1[1]*100+200);
     ctx.lineTo(q2[0]*100+200,q2[1]*100+200);
